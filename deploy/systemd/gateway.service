@@ -1,0 +1,22 @@
+[Unit]
+Description=Tecxol Gateway Driver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tecxol
+Group=tecxol
+ExecStart=/usr/local/bin/gateway run --config=/etc/gateway/config.yaml
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=GATEWAY_LOG__LEVEL=info
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/gateway
+
+[Install]
+WantedBy=multi-user.target

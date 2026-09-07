@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    command: ["mosquitto", "-c", "/mosquitto-no-tls.conf"]
+    volumes:
+      - ./scripts/mosquitto-no-tls.conf:/mosquitto-no-tls.conf:ro
+    ports:
+      - "1883:1883"
+
+  simulator:
+    image: python:3.11-slim
+    container_name: sunspec-simulator
+    working_dir: /app
+    command: ["python", "sunspec_sim.py"]
+    volumes:
+      - ./scripts/sunspec_sim.py:/app/sunspec_sim.py:ro
+    ports:
+      - "5020:5020"
+    expose:
+      - "5020"
+
+  gateway:
+    build: .
+    container_name: gateway
+    depends_on:
+      - mosquitto
+      - simulator
+    environment:
+      GATEWAY_LOG__LEVEL: debug
+      GATEWAY_MQTT__BROKER: tcp://mosquitto:1883
+      GATEWAY_MQTT__TOPIC_PREFIX: tecxol/dev01
+      GATEWAY_MQTT__TLS__ENABLED: "false"
+      GATEWAY_INVERTER__TYPE: sunspec
+      GATEWAY_INVERTER__SUNSPEC__HOST: simulator
+      GATEWAY_INVERTER__SUNSPEC__PORT: "5020"
+      GATEWAY_INVERTER__POLL__INTERVAL: 5s
+    command: ["run", "--config=/app/config.example.yaml"]
+    ports:
+      - "9091:9091"

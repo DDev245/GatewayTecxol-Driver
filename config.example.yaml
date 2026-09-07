@@ -1,0 +1,32 @@
+version: "0.1.0"
+
+log:
+  level: info
+  format: json
+
+http:
+  addr: ":9091"
+
+mqtt:
+  broker: "tls://localhost:8883"
+  client_id: "gatewaytecxol-001"
+  topic_prefix: "tecxol/gw01"
+  qos: 1
+  keepalive: 30
+  tls:
+    enabled: true
+    ca_file: "/etc/gateway/ca.pem"
+    client_cert: "/etc/gateway/client.pem"
+    client_key: "/etc/gateway/client.key"
+    insecure_skip_verify: false
+
+inverter:
+  type: "sunspec"
+  sunspec:
+    host: "192.168.1.50"
+    port: 502
+    unit_id: 1
+    timeout: 2s
+    models: [101, 103, 120]
+  poll:
+    interval: 5s
